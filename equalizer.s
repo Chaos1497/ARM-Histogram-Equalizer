@@ -7,7 +7,7 @@ _start: @carga el archivo de inicio
 	mov R7,#5
 	swi 0
 	add R8,R0,#0 @ guarda el descriptor en R8, por si acaso
-	ldr R9,=169034
+	ldr R9,=307200
 	b _loadToRam
 
 _loadToRam:
@@ -35,13 +35,13 @@ _fillPixels:@@ carga pixeles [0,...,255] en espacio -> pixeles
 
 _frec:
 	mov R9,#0 @ R9 va a ser i = 0, para comparar hasta 255 y de paso se puede usar como referencia
-	ldr R7,=169034 @ R7 va a ser el largo del archivo para j
+	ldr R7,=307200 @ R7 va a ser el largo del archivo para j
 	ldr R4,=frecuencias  @carga puntero a arreglo
 	b _frecAuxI
 
 _frecAuxI:
 	cmp R9,#256
-	beq _dump
+	beq _acumFrec
 	mov R8,#0 @ R8 va a ser j = 0 hasta R7
 	mov R2,#0 @ mi contador de frecuencias
 	b _frecAuxJ
@@ -59,15 +59,57 @@ _frecAuxJ:
 	b _frecAuxJ
 	
 _regToRam:
-@@	strb R2,[R4,#0] @ agarra el byte menos significativo
-@	lsr R2,R2,#8 @ le hace shift para obtener las cifras del siguiente byte
-@	strb R2,[R4,#1] @ guarda el byte de esas cifras
-@	lsr R2,R2,#8 @ le hace shift para obtener las cifras del siguiente byte
-@	strb R2,[R4,#2] @mismo
 	str R2, [R4,#0]
 	add R4,R4,#4
 	add R9,R9,#1
 	b _frecAuxI
+
+_acumFrec:
+	mov R9,#0
+	ldr R2, =frecuencias
+	ldr R3, =frecuenciasAcum
+	mov R4,#0 @ registro para cargar la frecuencia
+	mov R5,#0 @ registor para acumular
+	b _acumFrecAux
+	
+_acumFrecAux:
+	cmp R9,#256
+	beq _frecDistribuir
+	add R9,R9,#1 @ incrementa indice
+	ldr R4,[R2,#0] @ cargo la frecuencia
+	add R2,R2,#4 @ incrementa el puntero
+	add R5,R5,R4 @ acumula
+	str R5,[R3,#0] @ guarda acumulado
+	add R3,R3,#4 @incrementa puntero
+	b _acumFrecAux
+	
+_frecDistribuir:
+	mov R9,#0
+	ldr R1, =662 @ valor fijo
+	ldr R2, = frecuenciasDistr @ carga puntero
+	ldr R3, =frecuenciasDistrAcum @ carga puntero al otro arreglo de una vez
+	mov R4,#0  @ acumulador 	
+	bl _frecDistribuirAux
+	ldr R9, =307200 @ carga valor maximo
+	sub R5,R9,R4 @ agarro la diferencia
+	str R5,[R2,#0] @guardo el ultimo valor que completa la cuenta
+	str R9,[R3,#0] @ guarda valor total en frecuenciasDistrAcum
+	b _dump
+
+_frecDistribuirAux:
+	cmp R9,#254 @ compara a uno menos, para el ultimo poner la diferencia y tener el valor completo
+	bxeq lr
+	str R1,[R2,#0] @ guarda valor
+	add R4,R4,R1 @ incremento acumulador
+	str R4,[R3,#0] @ guarda acumulador de una vez
+	add R2,R2,#4 @ incrementa puntero a frecuenciasDistr
+	add R3,R3,#4 @ incrementa puntero a frecuenciasDistrAcum
+	add R9,R9,#1 @ incrementa contador
+	b _frecDistribuirAux
+
+__mapping:
+	mov R9,#0 @ contador 
+	mov R0,#0 @ 
 
 _dump:
 	ldr R0, =out @ carga eje.txt
@@ -75,8 +117,8 @@ _dump:
 	mov R7,#5 @syscall para open
 	swi 0
 	add R8,R0,#0 @ respaldo del file descriptor
-	ldr R9,=169034
-	mov R9,#255
+	ldr R9,=307200
+	@mov R9,#255
 	mov R3,#0
 	b _dumpAux
 	
@@ -85,21 +127,15 @@ _dumpAux:
 	cmp R9,#0
 	beq _c
 	sub R9,R9,#1 @ decrementa indice
-	ldr R1, =frecuencias @ carga valor a escribir
+	ldr R1, =ram @ carga valor a escribir
 	add R1,R1,R3 @ avanza en el puntero
 	mov R10,#0
-	ldr R10,[R1,#0] @ carga en R1 el word en R10
-@	lsl R10,R10,#16
-@	mov R2,#0
-@	ldrb R2,[R1,#1]
-@	lsl R2,R2,#8
-@	add R2,R10,R2
-@	mov R10,#0
-@	ldrb R10,[R1,#2]
-@	add R10,R10,R2
+	@ldr R10,[R1,#0] @ carga en R1 el word en R10
+	ldrb R10,[R1,#0] @ carga solo 1 byte
 	bl _intToStr
 	ldr R1,=intStr @ carga en R1 el puntero al valor modificado
-	add R3,R3,#4 @ incrementa el indice del puntero
+	@add R3,R3,#4 @ incrementa el indice del puntero para word son 4 espacios
+	add R3,R3,#1 @ para 1 byte solo 1
 	mov R2,#12 @ quiero escribir 12 bytes
 	mov R7,#4 @ codigo de syscall
 	swi 0 
@@ -116,7 +152,7 @@ _c:
 
 _intToStr:@ entrada R10, salida etiqueta intStr, convierte un entero a una representacion para usar en string de 2bits en 2bits se puede hacer de 3 bits en 3 y reducir ciclos
 	lsl R10,R10,#8
-	lsr R10,R10,#8 @@limpia numero 
+	lsr R10,R10,#8 @@limpia numero de los 8 primeros bits
 	ldr R11,=intStr
 	mov R1,#0
 	add R1,R10,#0 @@ lo mete en R1
@@ -213,12 +249,13 @@ _strValueToInt:
 	espacio: .asciz "\n"
 	imgTxt: .asciz "output.txt"
 	out: .asciz "archivoFinal.txt"
-	len: .4byte 169034
+	len: .4byte 307200
 	ramAux: .asciz "123"
 	intStr: .asciz "000000000000" @auxiliar para hacer cambio de int a str, valor maximo 24bytes 
-	ram: .space 169034,0
+	ram: .space 307200,0
 	pixeles: .space 255,0
-	frecuencias: .space 765,0 @ frecuencias peor de los casos puede ser un valor de 3bytes
-	
-@4 for write(where,what,len)
-@5 for open(where,r/w) 0read,1write,2both
+	frecuencias: .space 1020,0 @ frecuencias, usa 4 bytes para manejar words
+	frecuenciasAcum:  .space 1020,0 @ frecuencias acumuladas, usa 4 bytes para manejar words
+	frecuenciasDistr: .space 1020,0 @ frecuencias distribuidas, usa valor quemado por que depende de cantidad de pixeles
+	frecuenciasDistrAcum: .space 1020,0 @ frecuencias distribuidas acumuladas
+	pixelesMapeo: .space 255,0 @ vector para almacenar los pixeles mapeados

@@ -49,20 +49,20 @@ etiquetaImgEcualizada = Label(ventana, text="Imagen ecualizada:", bg="#FA5734", 
 etiquetaHistOriginal = Label(ventana, text="Histograma original:", bg="#FA5734", fg=colorLetra, font="Helvetica, 12").place(x=650, y=200)
 etiquetaHistEcualizada = Label(ventana, text="Histograma ecualizado:", bg="#FA5734", fg=colorLetra, font="Helvetica, 12").place(x=650, y=550)
 boton1 = Button(ventana, text="Mostrar resultados", command=mostrar, bg="#FFD700", fg=colorLetra, font="20").place(x=530, y=650)
-# Imagen en canvas al abrir
-imagen1 = Canvas(ventana, width=300, height=300, bg="#FFD600")
+# Imagen original en canvas
+imagen1 = Canvas(ventana, width=320, height=300, bg="#FFD600")
 imagen1.place(x=190, y=50)
-imagen1.create_image(175, 175, image='', tag="firstpic")
-# Imagen filtrada en canvas
-imagen2 = Canvas(ventana, width=300, height=300, bg="#FFD600")
+imagen1.create_image(160, 150, image='', tag="firstpic")
+# Imagen equalizada en canvas
+imagen2 = Canvas(ventana, width=320, height=300, bg="#FFD600")
 imagen2.place(x=190, y=400)
-imagen2.create_image(175, 175, image='', tag="secondpic")
+imagen2.create_image(160, 150, image='', tag="secondpic")
 # Histograma de imagen original
-imagen3 = Canvas(ventana, width=300, height=300, bg="#FFD600")
+imagen3 = Canvas(ventana, width=320, height=300, bg="#FFD600")
 imagen3.place(x=850, y=50)
-imagen3.create_image(175, 175, image='', tag="thirdpic")
+imagen3.create_image(160, 150, image='', tag="thirdpic")
 # Histograma de imagen ecualizada
-imagen4 = Canvas(ventana, width=300, height=300, bg="#FFD600")
+imagen4 = Canvas(ventana, width=320, height=300, bg="#FFD600")
 imagen4.place(x=850, y=400)
-imagen4.create_image(175, 175, image='', tag="fourthpic")
+imagen4.create_image(160, 150, image='', tag="fourthpic")
 ventana.mainloop()

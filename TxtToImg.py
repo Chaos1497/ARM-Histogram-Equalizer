@@ -41,5 +41,5 @@ def compare():
     plt.plot(histo2, color="blue")
     plt.savefig("/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoEcualizada.png")
 
-create_image()
-#compare()
+#create_image()
+compare()
