@@ -1,68 +1,56 @@
-from tkinter import *
-from tkinter import messagebox
+import pygame
 
-global imagen1
-global imagen2
-global imagen3
-global imagen4
+pygame.init()
 
-def abrir():
-    global file_name
-    global file_name2
-    global file_name3
-    global file_name4
+X = 1100
+Y = 700
 
-    file_name = "/home/esteban/Desktop/Arqui1/Proyecto1/Pruebas/atardecer.png"
-    imag=PhotoImage(file=file_name)
-    imagen1.itemconfigure("firstpic",image=imag)
-    imagen1.img=imag
+display_surface = pygame.display.set_mode((X, Y))
+pygame.display.set_caption('Proyecto 1 para Arquitectura de Computadores 1 de Esteban Andrés Zúñiga Orozco')
 
-    file_name2 = "/home/esteban/Desktop/Arqui1/Proyecto1/Resultado/ecualizada.png"
-    imag2=PhotoImage(file=file_name2)
-    imagen2.itemconfigure("secondpic",image=imag2)
-    imagen2.img=imag2
+image = pygame.image.load(r'/home/esteban/Desktop/Arqui1/Proyecto1/Pruebas/bosque.png')
+image = pygame.transform.scale(image, (425, 275))
+image2 = pygame.image.load(r'/home/esteban/Desktop/Arqui1/Proyecto1/Resultado/ecualizada.png')
+image2 = pygame.transform.scale(image2, (425, 275))
+image3 = pygame.image.load(r'/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoOriginal.png')
+image3 = pygame.transform.scale(image3, (425, 275))
+image4 = pygame.image.load(r'/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoEcualizada.png')
+image4 = pygame.transform.scale(image4, (425, 275))
 
-    file_name3 = "/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoOriginal.png"
-    imag3 = PhotoImage(file=file_name3)
-    imagen3.itemconfigure("thirdpic", image=imag3)
-    imagen3.img = imag3
+white = (255,255,255)
+font = pygame.font.SysFont('arial.ttf', 45)
+font2 = pygame.font.SysFont('arial.ttf', 25)
 
-    file_name4 = "/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoEcualizada.png"
-    imag4 = PhotoImage(file=file_name4)
-    imagen4.itemconfigure("fourthpic", image=imag4)
-    imagen4.img = imag4
+text = font.render("Ecualizador de histogramas", True, white)
+textRect = text.get_rect()
+textRect.center = ( X//2, 30)
+label1 = font2.render("Imagen original:", True, white)
+textRect1 = label1.get_rect()
+textRect1.center = (X//4, (Y//8)-25)
+label2 = font2.render("Imagen ecualizada:", True, white)
+textRect2 = label2.get_rect()
+textRect2.center = (X//4, (1.25*Y//2)-50)
+label3 = font2.render("Histograma de imagen original:", True, white)
+textRect3 = label3.get_rect()
+textRect3.center = (3*X//4, (Y//8)-25)
+label4 = font2.render("Histograma de imagen ecualizada:", True, white)
+textRect4 = label4.get_rect()
+textRect4.center = (3*X//4, (1.25*Y//2)-50)
 
-def mostrar():
-    return messagebox.showinfo("Completado","Se han cargado los resultados"), abrir()
-#############################################################################################################
+while True:
+    display_surface.fill(color="#58BF0C")
+    display_surface.blit(image, ((X//4)-200, 75))
+    display_surface.blit(image2, ((X//4)-200, 400))
+    display_surface.blit(image3, ((X//2)+75, 75))
+    display_surface.blit(image4, ((X//2)+75, 400))
+    display_surface.blit(text, textRect)
+    display_surface.blit(label1, textRect1)
+    display_surface.blit(label2, textRect2)
+    display_surface.blit(label3, textRect3)
+    display_surface.blit(label4, textRect4)
 
-#Inicio de interfaz grafica, definicion y caraxteristicas de la ventana
-ventana = Tk()
-ventana.title("Proyecto 1 para Arquitectura de Computadores 1 de Esteban Andres Zúñiga Orozco")
-ventana.geometry("1200x750")
-ventana.resizable(width=False, height=False)
-ventana.configure(bg="#FA5734")
-colorLetra = "#000000"
-etiquetaTitulo = Label(ventana, text="Ecualizador de histogramas", bg="#FA5734", fg=colorLetra, font="Helvetica, 20").place(x=400, y=10)
-etiquetaImgOriginal = Label(ventana, text="Imagen original:", bg="#FA5734", fg=colorLetra, font="Helvetica, 12").place(x=10, y=200)
-etiquetaImgEcualizada = Label(ventana, text="Imagen ecualizada:", bg="#FA5734", fg=colorLetra, font="Helvetica, 12").place(x=10, y=550)
-etiquetaHistOriginal = Label(ventana, text="Histograma original:", bg="#FA5734", fg=colorLetra, font="Helvetica, 12").place(x=650, y=200)
-etiquetaHistEcualizada = Label(ventana, text="Histograma ecualizado:", bg="#FA5734", fg=colorLetra, font="Helvetica, 12").place(x=650, y=550)
-boton1 = Button(ventana, text="Mostrar resultados", command=mostrar, bg="#FFD700", fg=colorLetra, font="20").place(x=530, y=650)
-# Imagen original en canvas
-imagen1 = Canvas(ventana, width=320, height=300, bg="#FFD600")
-imagen1.place(x=190, y=50)
-imagen1.create_image(160, 150, image='', tag="firstpic")
-# Imagen equalizada en canvas
-imagen2 = Canvas(ventana, width=320, height=300, bg="#FFD600")
-imagen2.place(x=190, y=400)
-imagen2.create_image(160, 150, image='', tag="secondpic")
-# Histograma de imagen original
-imagen3 = Canvas(ventana, width=320, height=300, bg="#FFD600")
-imagen3.place(x=850, y=50)
-imagen3.create_image(160, 150, image='', tag="thirdpic")
-# Histograma de imagen ecualizada
-imagen4 = Canvas(ventana, width=320, height=300, bg="#FFD600")
-imagen4.place(x=850, y=400)
-imagen4.create_image(160, 150, image='', tag="fourthpic")
-ventana.mainloop()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+        pygame.display.update()

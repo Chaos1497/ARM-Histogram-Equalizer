@@ -4,7 +4,7 @@ from PIL import Image
 import numpy
 import cv2
 
-linkImg = "/home/esteban/Desktop/Arqui1/Proyecto1/Pruebas/flower.png"
+linkImg = "/home/esteban/Desktop/Arqui1/Proyecto1/Pruebas/bosque.png"
 
 def create_image():
     urlResult = "/home/esteban/Desktop/Arqui1/Proyecto1/archivoFinal.txt"
@@ -26,20 +26,22 @@ def create_image():
     img.save("home/esteban/Desktop/Arqui1/Proyecto1/Resultado/ecualizada.png")
     img.show()
 
-def compare():
+def histog1():
     img1 = cv2.imread(linkImg,0)
-    img1 = cv2.equalizeHist(img1)
-    histo1 = cv2.calcHist([img1], [0], None, [256], [0,256])
+    img11 = cv2.equalizeHist(img1)
+    histo1 = cv2.calcHist([img11], [0], None, [256], [0,256])
     plt.title("Histograma de imagen original")
-    plt.plot(histo1, color="blue")
+    plt.plot(histo1, color="green")
     plt.savefig("/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoOriginal.png")
+    return histog2()
 
+def histog2():
     img2 = cv2.imread("home/esteban/Desktop/Arqui1/Proyecto1/Resultado/ecualizada.png", 0)
-    img2 = cv2.equalizeHist(img2)
-    histo2 = cv2.calcHist([img2], [0], None, [256], [0, 256])
+    img22 = cv2.equalizeHist(img2)
+    histo2 = cv2.calcHist([img22], [0], None, [256], [0, 256])
     plt.title("Histograma de imagen ecualizada")
-    plt.plot(histo2, color="blue")
+    plt.plot(histo2, color="green")
     plt.savefig("/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoEcualizada.png")
 
 #create_image()
-compare()
+histog1()

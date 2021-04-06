@@ -8,7 +8,7 @@ Herramientas utilizadas:
 		Matplotlib
 		PIL
 		Open CV
-		Tkinter
+		PyGame
 	ARM Cross Toolchain
 	ARM GDB Debugger
 	Qemu
@@ -31,4 +31,4 @@ Instrucciones de uso:
 			(Para reconstruir el resultado del ensamblador ejecutado en el paso 2 y crear los histogramas)
 			
 		4. Dentro de PyCharm ejecute el archivo Comparador.py
-			Dé click en el botón Mostrar Resultados, con esto se visualizarán los resultados finales
+			(Con esto se visualizarán los resultados finales para comparar)
