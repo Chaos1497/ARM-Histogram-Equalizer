@@ -14,35 +14,26 @@ def reconstruir():
     pixel = 0
     for elemento in txt1:
         valor = elemento.rstrip("\n")
-        valor0 = int(valor[0]) << 22
+        valor0 = int(valor[0]) << 7
         pixel += valor0
-        valor1 = int(valor[1]) << 20
+        valor1 = int(valor[1]) << 6
         pixel += valor1
-        valor2 = int(valor[2]) << 18
+        valor2 = int(valor[2]) << 5
         pixel += valor2
-        valor3 = int(valor[3]) << 16
+        valor3 = int(valor[3]) << 4
         pixel += valor3
-        valor4 = int(valor[4]) << 14
+        valor4 = int(valor[4]) << 3
         pixel += valor4
-        valor5 = int(valor[5]) << 12
+        valor5 = int(valor[5]) << 2
         pixel += valor5
-        valor6 = int(valor[6]) << 10
+        valor6 = int(valor[6]) << 1
         pixel += valor6
-        valor7 = int(valor[7]) << 8
+        valor7 = int(valor[7])
         pixel += valor7
-        valor8 = int(valor[8]) << 6
-        pixel += valor8
-        valor9 = int(valor[9]) << 4
-        pixel += valor9
-        valor10 = int(valor[10]) << 2
-        pixel += valor10
-        valor11 = int(valor[11])
-        pixel += valor11
         txt2.write(str(pixel) + "\n")
         pixel = 0
     txt2.close()
     create_image()
-
 
 def create_image():
     f = open(linkFinal, "r")
@@ -62,8 +53,6 @@ def create_image():
     img.save("/home/esteban/Desktop/Arqui1/Proyecto1/Resultado/ecualizada.png")
     histogramas()
 
-
-
 def histogramas():
     img1 = cv2.imread(linkImg,0)
     img11 = cv2.equalizeHist(img1)
@@ -78,6 +67,5 @@ def histogramas():
     plt.title("Histograma de imagen ecualizada")
     plt.plot(histo2, color="green")
     plt.savefig("/home/esteban/Desktop/Arqui1/Proyecto1/Histogramas/histoEcualizada.png")
-
 
 reconstruir()

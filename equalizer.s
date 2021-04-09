@@ -24,7 +24,7 @@ _cargarROM:
 	mov R2, #3 
 	mov R7, #3 @ #5 indica lectura del archivo , ver segundo comentario inicial
 	swi 0
-	bl _strToInt
+	bl _strToInt @ necesito convertir los valores a enteros para poder analizarlos
 	ldr R2, =memROM
 	add R2, R2, R5
 	add R5, R5, #1 @ se va incrementando el puntero por 1 byte
@@ -95,22 +95,22 @@ _frecDist:
 	ldr R1, =1204  @ valorMaxPix/255
 	ldr R2, = frecuenciaDist @ frecuencias de tabla 3
 	ldr R3, =frecuenciaDistAcum @ frecuencias de tabla 4
-	mov R4,#0  @ acumulador 	
+	mov R4,#0  @ acumulado	
 	bl _frecDistAux
 	ldr R9, =307200 @ carga valor maximo
 	sub R5,R9,R4 @ agarro la diferencia
-	str R5,[R2,#0] @guardo el ultimo valor que completa la cuenta
+	str R5,[R2,#0] @ guardo el ultimo valor que completa la cuenta
 	str R9,[R3,#0] @ guarda valor total en frecuenciaDistAcum
 	b _remapeoInicial
 	
 _frecDistAux:
-	cmp R9,#254 @ compara a uno menos, para el ultimo poner la diferencia y tener el valor completo
+	cmp R9,#254 
 	bxeq lr
 	str R1,[R2,#0] @ guarda valor
 	add R4,R4,R1 @ incremento acumulador
-	str R4,[R3,#0] @ guarda acumulador de una vez
-	add R2,R2,#4 @ incrementa puntero a frecuenciaDist
-	add R3,R3,#4 @ incrementa puntero a frecuenciaDistAcum
+	str R4,[R3,#0] @ guarda acumulado
+	add R2,R2,#4 @ aumenta frecuenciaDist
+	add R3,R3,#4 @ aumenta frecuenciaDistAcum
 	add R9,R9,#1 @ incrementa contador
 	b _frecDistAux
 
@@ -129,18 +129,18 @@ _cargarEnFinalAux:
 	cmp R9, #0
 	beq _final       
 	sub R9, R9, #1
-	ldr R1, =memROM
+	ldr R1, =memROM @cargo la memoria ROM
 	add R1, R1, R3
 	mov R10, #0
 	ldrb R10, [R1,#0] @ carga solo 1 byte
-	bl _intToStr
+	bl _intToStr @ necesito convertir enteros en string para guardar en el txt
 	ldr R1, =auxiliar @ carga en R1 el puntero al valor modificado
-	add R3, R3, #1 @ para 1 byte solo 1
-	mov R2, #12 @ quiero escribir 12 bytes
+	add R3, R3, #1 
+	mov R2, #8 @ escribo 8 bytes
 	mov R7, #4 @ #4 indica escritura del archivo , ver segundo comentario inicial
 	swi 0 
-	add R0, R6, #0 @ write devuelve un valor en R0, entoces se tiene que volver a cargar el respaldo de fd
-	ldr R1, =espacio @ escribe un espacio para separar los valores
+	add R0, R6, #0 @ cargo la copia de nuevo
+	ldr R1, =salto @ escribo un salto de linea para separar los valores
 	mov R2, #1 @ #1 indica modo de lectura, ver tercer comentario inicial
 	mov R7, #4 @ #4 indica escritura del archivo , ver segundo comentario inicial
 	swi 0
@@ -165,7 +165,7 @@ _remapeoInicialFila:
 
 _remapeoInicialColumna:
 	cmp R8, #255
-	beq _lookForLess
+	beq _buscarMenor
 	add R8, R8, #1
 	ldr R1, [R4, #0]
 	cmp R1, R5
@@ -176,25 +176,25 @@ _remapeoInicialColumna:
 	add R4, R4, #4
 	b _remapeoInicialColumna
 
-_lookForLess:
+_buscarMenor:
 	ldr R7, =listaDif
 	ldr R4, =307200
 	mov R8, #0
 	mov R11,#0
-	b _lookForLessAux
+	b _buscarMenorAux
 	
-_lookForLessAux:
+_buscarMenorAux:
 	cmp R8, #255
-	beq _strPixelMap
+	beq _pixelStrMap
 	ldr R10, [R7]
 	add R7, R7, #4
 	cmp R4, R10
 	addgt R4, R10, #0
 	addgt R11, R8, #0
 	add R8, R8, #1
-	b _lookForLessAux
+	b _buscarMenorAux
 
-_strPixelMap:
+_pixelStrMap:
 	strb R11, [R0, #0]
 	add R0, R0, #1
 	mov R8, #0
@@ -227,99 +227,84 @@ _remapeoFinalAux2:
 	b _remapeoFinalAux2
 	
 _strToInt:
-	ldr R10, =conversor @se carga puntero del valor leido
-	ldrb R1, [R10, #2]
-	sub R4, R1, #'0' @ se pasa a decimal y se guarda en R4
-	ldr R10, =conversor
-	ldrb R1, [R10, #1] @ se agarra en R1 el char que sigue
-	mov R10, #10
+	ldr R11, =conversor @se carga puntero del valor leido
+	ldrb R1, [R11, #2]
+	sub R4, R1, #'0' @ se pasa a decimal
+	ldr R11, =conversor
+	ldrb R1, [R11, #1] @ se agarra en R1 el char que sigue
+	mov R11, #10 @ paso a la segunda posicion del conversor
 	sub R1, R1, #'0' @ se pasa a decimal
-	mul R7, R1, R10 
-	add R4, R4, R7 @ suma el 2do digito sacado a R4
-	ldr R10, =conversor
-	ldrb R1, [R10, #0] @se carga el byte que hay ahi, en R1
-	mov R10, #100
-	sub R1, R1, #'0'
-	mul R7, R1, R10
-	add R4, R4, R7
+	mul R6, R1, R11 
+	add R4, R4, R6 @ suma el 2do digito sacado a R4
+	ldr R11, =conversor
+	ldrb R1, [R11, #0] @ carga el byte en R1
+	mov R11, #100 @ paso a la tercera posicion del conversor
+	sub R1, R1, #'0' @ se pasa a decimal
+	mul R6, R1, R11
+	add R4, R4, R6
 	bx lr
 
-@ Funcion que convierte un entero a una representacion para usar en string de 2 en 2 bits
 _intToStr:
-	lsl R10, R10, #8 @ Se limpia R10
-	lsr R10, R10, #8 
+	lsl R10, R10, #24
+	lsr R10, R10, #24
 	ldr R12, =auxiliar
+	
 	mov R1, #0
-	add R1, R10, #0 
-	lsr R1, R1, #22
+	add R1, R10, #0
+	lsl R1, R1, #24 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
-	strb R1, [R12, #0] @ mete primeros 2 bits
+	strb R1, [R12, #0]
+	
 	mov R1, #0
-	add R1, R10, #0 @@ segundos 2bits
-	lsl R1, R1, #10
-	lsr R1, R1, #30
+	add R1, R10, #0
+	lsl R1, R1, #25 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #1]
+	
 	mov R1, #0
 	add R1, R10, #0
-	lsl R1, R1, #12
-	lsr R1, R1, #30
+	lsl R1, R1, #26 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #2]
+	
 	mov R1, #0
 	add R1, R10, #0
-	lsl R1, R1, #14
-	lsr R1, R1, #30
+	lsl R1, R1, #27 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #3]
+	
 	mov R1, #0
 	add R1, R10, #0
-	lsl R1, R1, #16
-	lsr R1, R1, #30
+	lsl R1, R1, #28 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #4]
+	
 	mov R1, #0
 	add R1, R10, #0
-	lsl R1, R1, #18
-	lsr R1, R1, #30
+	lsl R1, R1, #29 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #5]
+	
 	mov R1, #0
 	add R1, R10, #0
-	lsl R1, R1, #20
-	lsr R1, R1, #30
+	lsl R1, R1, #30 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #6]
+	
 	mov R1, #0
 	add R1, R10, #0
-	lsl R1, R1, #22
-	lsr R1, R1, #30
+	lsl R1, R1, #31 @desplazo para correr el bit que ocupo
+	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #7]
-	mov R1, #0
-	add R1, R10, #0
-	lsl R1, R1, #24
-	lsr R1, R1, #30
-	add R1, R1, #'0'
-	strb R1, [R12, #8]
-	mov R1, #0
-	add R1, R10, #0
-	lsl R1, R1, #26
-	lsr R1, R1, #30
-	add R1, R1, #'0'
-	strb R1, [R12, #9]
-	mov R1, #0
-	add R1, R10, #0
-	lsl R1, R1, #28
-	lsr R1, R1, #30
-	add R1, R1, #'0'
-	strb R1, [R12, #10]
-	mov R1, #0
-	add R1, R10, #0
-	lsl R1, R1, #30
-	lsr R1, R1, #30
-	add R1, R1, #'0'
-	strb R1, [R12, #11]
+	
 	bx lr
 
 _final:
@@ -327,7 +312,7 @@ _final:
 	swi 0
 
 .data
-	espacio: .asciz "\n" @ variable para separar pixeles en el archivo final
+	salto: .asciz "\n" @ variable para separar pixeles en el archivo final
 	txtPixeles: .asciz "pixPrecargados.txt" @ archivo con pixeles precargados
 	txtPixelesNuevos: .asciz "archivoRemapeo.txt" @ archivo con pixeles finales
 	@ Rango de offset de 0-255 es de 1020, ver quinto comentario inicial
@@ -339,6 +324,6 @@ _final:
 	total: .4byte 307200  @varía con las dimensiones de la imagen
 	mappingByte: .space 255,0 @ byte para ir guardando los pixeles finales
 	valorMaxPix: .byte 255 @ valor maximo para un pixel
-	auxiliar: .asciz "000000000000" @auxiliar para hacer cambio de int a str
+	auxiliar: .asciz "00000000" @auxiliar para hacer cambio de int a str
 	conversor: .asciz "000" @ Para conversiones varias
 	memROM: .space 307200,0  @varía con las dimensiones de la imagen
