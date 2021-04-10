@@ -55,7 +55,7 @@ _frecFila:
 
 _frecColumna:
 	cmp R8,R7 @ condicion de parada
-	beq _guardarEnFinal
+	beq _pasarFrecuencias
 	ldr R10, =memROM @ carga en R10 la memoria con los pixeles precargados
 	add R10,R10,R8
 	mov R1,#0
@@ -65,7 +65,7 @@ _frecColumna:
 	add R8,R8,#1 @ j+=1
 	b _frecColumna
 	
-_guardarEnFinal:
+_pasarFrecuencias:
 	str R2, [R4,#0]
 	add R4,R4,#4
 	add R9,R9,#1
@@ -248,63 +248,54 @@ _intToStr:
 	lsl R10, R10, #24
 	lsr R10, R10, #24
 	ldr R12, =auxiliar
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #24 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #0]
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #25 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #1]
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #26 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #2]
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #27 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #3]
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #28 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #4]
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #29 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #5]
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #30 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #6]
-	
 	mov R1, #0
 	add R1, R10, #0
 	lsl R1, R1, #31 @desplazo para correr el bit que ocupo
 	lsr R1, R1, #31 @desplazo para poner el bit
 	add R1, R1, #'0'
 	strb R1, [R12, #7]
-	
 	bx lr
 
 _final:
